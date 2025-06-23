@@ -17,7 +17,7 @@
 
   <script>
     const token = new URLSearchParams(window.location.search).get('token');
-    const validTokens = ['abc123', 'xyz789']; // Replace or extend this list
+    const validTokens = ['abc123', 'xyz789']; // Replace or fetch from Airtable if needed
 
     if (!validTokens.includes(token)) {
       document.body.innerHTML = '<h2>Access Denied</h2><p>Invalid or missing token.</p>';
@@ -26,26 +26,36 @@
 
     WebViewer({
       path: 'lib',
-      licenseKey: '1JMaJ7Xcduy5oUxKFFNM', // Replace with your real key
+      licenseKey: 'YOUR_FREE_LICENSE_KEY', // Replace with your real key
       initialDoc: 'my-document.pdf',
-      disabledElements: [
-        'downloadButton',
-        'printButton',
-        'saveAsButton',
+      isReadOnly: true,
+      enableOfficeEditing: false
+    }, document.getElementById('viewer')).then(instance => {
+      const { UI } = instance;
+      // Hide all UI
+      UI.disableElements([
+        'header',
+        'toolsHeader',
+        'leftPanel',
+        'rightPanel',
         'toolbarGroup-Annotate',
         'toolbarGroup-Edit',
         'toolbarGroup-Shapes',
         'toolbarGroup-Insert',
         'toolbarGroup-Forms',
         'toolbarGroup-FillAndSign',
-        'toolsHeader',
+        'menuButton',
         'searchButton',
-        'menuButton'
-      ],
-      enableOfficeEditing: false,
-      isReadOnly: true
-    }, document.getElementById('viewer')).then(instance => {
-      // Optional: further remove context menus or other UX tweaks here
+        'downloadButton',
+        'printButton',
+        'saveAsButton',
+        'pageNavOverlay',
+        'zoomOverlay'
+      ]);
+
+      UI.setToolbarGroup(''); // Reset toolbars completely
+      UI.setShowToolbarGroup(false); // Don’t allow toolbar switching
+      UI.closeElements(['leftPanel', 'rightPanel', 'toolsHeader', 'header']);
     });
   </script>
 </body>
