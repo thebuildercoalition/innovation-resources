@@ -24,39 +24,35 @@
       throw new Error('Unauthorized');
     }
 
-    WebViewer({
-      path: 'lib',
-      licenseKey: 'YOUR_FREE_LICENSE_KEY', // Replace with your real key
-      initialDoc: 'my-document.pdf',
-      isReadOnly: true,
-      enableOfficeEditing: false
-    }, document.getElementById('viewer')).then(instance => {
-      const { UI } = instance;
-      // Hide all UI
-      UI.disableElements([
-        'header',
-        'toolsHeader',
-        'leftPanel',
-        'rightPanel',
-        'toolbarGroup-Annotate',
-        'toolbarGroup-Edit',
-        'toolbarGroup-Shapes',
-        'toolbarGroup-Insert',
-        'toolbarGroup-Forms',
-        'toolbarGroup-FillAndSign',
-        'menuButton',
-        'searchButton',
-        'downloadButton',
-        'printButton',
-        'saveAsButton',
-        'pageNavOverlay',
-        'zoomOverlay'
-      ]);
+WebViewer({
+  path: 'lib',
+  licenseKey: 'YOUR_FREE_LICENSE_KEY', // required
+  initialDoc: 'my-document.pdf',
+  isReadOnly: true
+}, document.getElementById('viewer'))
+.then(instance => {
+  const UI = instance.UI;
 
-      UI.setToolbarGroup(''); // Reset toolbars completely
-      UI.setShowToolbarGroup(false); // Don’t allow toolbar switching
-      UI.closeElements(['leftPanel', 'rightPanel', 'toolsHeader', 'header']);
-    });
+  // Completely strip header and toolbar
+  UI.disableElements([
+    'header',
+    'toolsHeader',
+    'ribbons',
+    'leftPanel',
+    'rightPanel',
+    'menuButton',
+    'searchButton',
+    'downloadButton',
+    'printButton',
+    'saveAsButton',
+    'pageNavOverlay',
+    'zoomOverlay'
+  ]);
+
+  UI.setHeaderItems(header => {
+    header.update([]); // remove all header items
+  });
+});
   </script>
 </body>
 </html>
