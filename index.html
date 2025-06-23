@@ -2,34 +2,23 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Secure PDF Viewer</title>
   <script src="lib/webviewer.min.js"></script>
-  <style>
-    html, body, #viewer {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+  <style>html, body, #viewer { height:100%; margin:0; }</style>
 </head>
 <body>
   <div id="viewer"></div>
-
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    const validTokens = ['abc123', 'xyz789'];
-
-    if (!validTokens.includes(token)) {
-      document.body.innerHTML = '<h2>Access Denied</h2><p>Invalid or missing token.</p>';
+    const token = new URLSearchParams(window.location.search).get('token');
+    if (token !== 'abc123') {
+      document.body.innerHTML = '<h2>Access Denied</h2>';
       throw new Error('Invalid token');
     }
-
     WebViewer({
       path: 'lib',
+      licenseKey: '1JMaJ7Xcduy5oUxKFFNM',
       initialDoc: 'my-document.pdf',
-      disabledElements: ['downloadButton', 'printButton']
-    }, document.getElementById('viewer'))
+      disabledElements: ['downloadButton','printButton']
+    }, document.getElementById('viewer'));
   </script>
 </body>
 </html>
