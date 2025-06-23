@@ -1,54 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Secure PDF Viewer</title>
-  <script src="pdfjs/build/pdf.js"></script>
+  <title>TBC Innovation Resources</title>
+  <script src="lib/webviewer.min.js"></script>
   <style>
-    #pdf-viewer canvas { width: 100%; }
+    html, body, #viewer {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
   </style>
 </head>
 <body>
-  <div id="pdf-viewer"></div>
+  <div id="viewer"></div>
 
   <script>
-    // Get token from URL
+    // Step 1: Capture token from URL and store in sessionStorage
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+    const tokenFromUrl = urlParams.get('token');
 
-    // Replace with real tokens
-    const validTokens = ['abc123', 'xyz789'];
+    if (tokenFromUrl) {
+      sessionStorage.setItem('secureToken', tokenFromUrl);
 
-    if (!validTokens.includes(token)) {
-      document.body.innerHTML = "<h2>Access Denied</h2><p>Invalid or missing token.</p>";
-      throw new Error('Unauthorized');
+      // Clean the URL (remove token) without reloading
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    // Load the PDF
-    const url = 'my-document.pdf';
+    // Step 2: Retrieve token from sessionStorage
+    const storedToken = sessionStorage.getItem('secureToken');
 
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/build/pdf.worker.js';
+    if (storedToken !== 'abc123') {
+      document.body.innerHTML = '<h2>Access Denied</h2><p>This link is invalid or has expired.</p>';
+      throw new Error('Invalid token');
+    }
 
-    const loadingTask = pdfjsLib.getDocument(url);
-    loadingTask.promise.then(function(pdf) {
-      pdf.getPage(1).then(function(page) {
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        document.getElementById('pdf-viewer').appendChild(canvas);
-
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport
-        };
-        page.render(renderContext);
-      });
+    // Step 3: Load PDF.js Express viewer
+    WebViewer({
+      path: 'lib',
+      licenseKey: '1JMaJ7Xcduy5oUxKFFNM', // Replace with your license key
+      initialDoc: 'my-document.pdf',        // Replace with your actual file
+      isReadOnly: true
+    }, document.getElementById('viewer')).then(instance => {
+      const { UI } = instance;
+      UI.disableElements([
+        'header',
+        'toolsHeader',
+        'ribbons',
+        'leftPanel',
+        'rightPanel',
+        'menuButton',
+        'searchButton',
+        'downloadButton',
+        'printButton',
+        'saveAsButton',
+        'pageNavOverlay',
+        'zoomOverlay'
+      ]);
+      UI.setHeaderItems(() => []); // Clear any header items
     });
   </script>
 </body>
