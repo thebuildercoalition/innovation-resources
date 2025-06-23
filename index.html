@@ -2,57 +2,54 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>TBC Innovation Resources</title>
-  <script src="lib/webviewer.min.js"></script>
+  <title>Secure PDF Viewer</title>
+  <script src="pdfjs/build/pdf.js"></script>
   <style>
-    html, body, #viewer {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
+    #pdf-viewer canvas { width: 100%; }
   </style>
 </head>
 <body>
-  <div id="viewer"></div>
+  <div id="pdf-viewer"></div>
 
   <script>
-    const token = new URLSearchParams(window.location.search).get('token');
-    const validTokens = ['abc123', 'xyz789']; // Replace or fetch from Airtable if needed
+    // Get token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    // Replace with real tokens
+    const validTokens = ['abc123', 'xyz789'];
 
     if (!validTokens.includes(token)) {
-      document.body.innerHTML = '<h2>Access Denied</h2><p>Invalid or missing token.</p>';
+      document.body.innerHTML = "<h2>Access Denied</h2><p>Invalid or missing token.</p>";
       throw new Error('Unauthorized');
     }
 
-WebViewer({
-  path: 'lib',
-  licenseKey: 'YOUR_FREE_LICENSE_KEY', // required
-  initialDoc: 'my-document.pdf',
-  isReadOnly: true
-}, document.getElementById('viewer'))
-.then(instance => {
-  const UI = instance.UI;
+    // Load the PDF
+    const url = 'my-document.pdf';
 
-  // Completely strip header and toolbar
-  UI.disableElements([
-    'header',
-    'toolsHeader',
-    'ribbons',
-    'leftPanel',
-    'rightPanel',
-    'menuButton',
-    'searchButton',
-    'downloadButton',
-    'printButton',
-    'saveAsButton',
-    'pageNavOverlay',
-    'zoomOverlay'
-  ]);
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs/build/pdf.worker.js';
 
-  UI.setHeaderItems(header => {
-    header.update([]); // remove all header items
-  });
-});
+    const loadingTask = pdfjsLib.getDocument(url);
+    loadingTask.promise.then(function(pdf) {
+      pdf.getPage(1).then(function(page) {
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        document.getElementById('pdf-viewer').appendChild(canvas);
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        page.render(renderContext);
+      });
+    });
   </script>
 </body>
 </html>
