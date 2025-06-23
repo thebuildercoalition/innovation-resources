@@ -16,19 +16,16 @@
   <div id="viewer"></div>
 
   <script>
-    // Step 1: Capture token from URL and store in sessionStorage
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromUrl = urlParams.get('token');
 
     if (tokenFromUrl) {
       sessionStorage.setItem('secureToken', tokenFromUrl);
 
-      // Clean the URL (remove token) without reloading
       const cleanUrl = window.location.origin + window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    // Step 2: Retrieve token from sessionStorage
     const storedToken = sessionStorage.getItem('secureToken');
 
     if (storedToken !== 'abc123') {
@@ -36,11 +33,10 @@
       throw new Error('Invalid token');
     }
 
-    // Step 3: Load PDF.js Express viewer
     WebViewer({
       path: 'lib',
-      licenseKey: '1JMaJ7Xcduy5oUxKFFNM', // Replace with your license key
-      initialDoc: 'my-document.pdf',        // Replace with your actual file
+      licenseKey: '1JMaJ7Xcduy5oUxKFFNM',
+      initialDoc: 'my-document.pdf',
       isReadOnly: true
     }, document.getElementById('viewer')).then(instance => {
       const { UI } = instance;
